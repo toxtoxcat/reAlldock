@@ -1,0 +1,2 @@
+# reAlldock
+AlphaFoldフルプロテオームに対しVina-GPUを実行するGoogle-Colab用スクリプト
