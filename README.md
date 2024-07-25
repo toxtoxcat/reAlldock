@@ -33,7 +33,7 @@ python main_prepare.py \
 2. Running Vina-GPU. A csv file summarizing the Vina-GPU results and a png file with a histogram of docking scores are output.
 ```
 python main_dock.py \
-        --output_path {Absolute path of the output directory} \
+        --output_path {The same output path you specified in `main_prepare.py`} \
         --ligand_path {Path of the ligand for docking to the AlphaFold structures} \
         --vina_executable_path {Absolute path of the Vina-GPU executable file}
 ```
@@ -48,11 +48,11 @@ python main_dock.py \
 |--size_y| Vina-GPU option| 20
 |--size_z| Vina-GPU option| 20
 
-3. Perform Enrichment analysis using [String API](https://string-db.org/help/api/) for the top N docking score proteins.
+3. Perform Enrichment analysis using [String API](https://string-db.org/help/api/) for the top N docking score proteins. The list of species will be displayed again. Enter the same number you selected in `main_prepare.py`.
 ```
 python main_string.py \
-        --output_path {Absolute path of the output directory} \
-        --vina_csv_path {Path of the Vina-GPU result csv}
+        --output_path {The same output path you specified in `main_prepare.py`} \
+        --vina_csv_path {The path of the docking result csv output by `main_dock.py`}
 ```
 |Arguments| Description|Default value
 |--|--|--|
