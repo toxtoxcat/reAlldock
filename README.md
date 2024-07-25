@@ -35,8 +35,8 @@ python main_prepare.py \
 
 ```
 python main_dock.py \
-        --output_path {Absolute path of the output directory}
-        --ligand_path {path of the ligand for docking to the AlphaFold structures}
+        --output_path {Absolute path of the output directory} \
+        --ligand_path {Path of the ligand for docking to the AlphaFold structures} \
         --vina_executable_path {Absolute path of the Vina-GPU executable file}
 ```
 |Arguments| Description|Default value
@@ -54,8 +54,8 @@ python main_dock.py \
 
 ```
 python main_string.py \
-        --output_path {Absolute path of the output directory}
-        --vina_csv_path {path of the Vina-GPU result csv}
+        --output_path {Absolute path of the output directory} \
+        --vina_csv_path {Path of the Vina-GPU result csv}
 ```
 |Arguments| Description|Default value
 |--|--|--|
