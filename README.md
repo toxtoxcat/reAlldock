@@ -30,19 +30,19 @@ python main_prepare.py \
         --output_path {Absolute path of the output directory}
 ```
 
-2. Running Vina-GPU. A csv file summarizing the Vina-GPU results and a png file with a histogram of docking scores are output.
+2. Running Vina-GPU. A csv file summarizing the Vina-GPU results and a png file with a histogram of docking scores will be output.
 ```
 python main_dock.py \
         --output_path {The same output path you specified in `main_prepare.py`} \
-        --ligand_path {Path of the ligand for docking to the AlphaFold structures} \
+        --ligand_path {Absolute path of the ligand for docking to the AlphaFold structures} \
         --vina_executable_path {Absolute path of the Vina-GPU executable file}
 ```
 |Arguments| Description|Default value
 |--|--|--|
-|--output_path| Specify the same path in `main_prepare.py`| no default
-|--ligand_path| sdf or mol2 file are available| no default
-|--smiles| You can also specify SMILES instead of ligand files| no default
-|--vina_executable_path| Specify the absolute path of the Vina-GPU executable file| no default
+|--output_path| Specify the same path in `main_prepare.py`.| no default
+|--ligand_path| Specfy the absolute path of the ligand. sdf or mol2 file are available.| no default
+|--smiles| You can also specify SMILES instead of ligand files.| no default
+|--vina_executable_path| Specify the absolute path of the Vina-GPU executable file.| no default
 |--thread| Vina-GPU option| 1000
 |--size_x| Vina-GPU option| 20
 |--size_y| Vina-GPU option| 20
@@ -56,7 +56,7 @@ python main_string.py \
 ```
 |Arguments| Description|Default value
 |--|--|--|
-|--output_path| Specify the same path in `main_prepare.py`| no default
-|--vina_csv_path| Specify the path of the docking result csv output by `main_dock.py`| no default
-|--top_n| The analysis is performed for proteins up to the rank specified here| 100
-|--thre_score| The analysis is performed for proteins less than the score specified here| -8
+|--output_path| Specify the same path in `main_prepare.py`.| no default
+|--vina_csv_path| Specify the path of the docking result csv output by `main_dock.py`.| no default
+|--top_n| The analysis is performed for proteins up to the rank specified here.| 100
+|--thre_score| The analysis is performed for proteins less than the score specified here.| -8
