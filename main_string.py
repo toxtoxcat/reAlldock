@@ -343,18 +343,10 @@ df = df.sort_values(by='Count_in_Set', ascending=False)
 df = df.head(30)
 df = df.sort_values(['category','Count_in_Set'], ascending=[False, False])
 
-# Set colors
-palette = {
-    'Process': 'skyblue',
-    'Component': 'lightgreen',
-    'Function': 'lightcoral',
-    'Keyword': 'khaki'
-}
-
 # Draw bar graph
 plt.figure(figsize=(25, 20))
 plt.rcParams["font.size"] = 20
-barplot = sns.barplot(x='Count_in_Set', y='description', hue='category', data=df, palette=palette, dodge=False)
+barplot = sns.barplot(x='Count_in_Set', y='description', hue='category',palette="viridis", data=df, dodge=False)
 
 plt.xlabel('Number of Proteins')
 plt.ylabel('Function')
@@ -422,7 +414,9 @@ csv_file = f'{output_dir}/string_result/{ligand_name}/functional_enrichment_resu
 df = pd.read_csv(csv_file)
 
 # Sort the DataFrame by 'Count_in_Set' in descending order
-df = df.sort_values(by='Count_in_Set', ascending=False)
+df = df.sort_values(by='FDR', ascending=True)
+df = df.head(30)
+df = df.sort_values(['FDR','Count_in_Set'], ascending=[True, False])
 
 # Create a color palette based on the FDR values
 norm = plt.Normalize(df['FDR'].min(), df['FDR'].max())
@@ -430,8 +424,8 @@ sm = plt.cm.ScalarMappable(cmap="viridis", norm=norm)
 sm.set_array([])
 
 # Draw bar graph
-plt.figure(figsize=(20, 20))
-barplot = sns.barplot(x='Count_in_Set', y='description', data=df, palette="viridis", hue='FDR', dodge=False)
+plt.figure(figsize=(30, 20))
+barplot = sns.barplot(x='Count_in_Set', y='description', data=df, palette="viridis", hue='FDR', dodge=False, legend=False)
 
 # Add color bar
 cbar = plt.colorbar(sm, ax=barplot, orientation='vertical')
