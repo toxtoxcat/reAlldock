@@ -123,7 +123,7 @@ string_api_url = "https://version-11-5.string-db.org/api"
 output_format = "tsv-no-header"
 method = "get_string_ids"
 
-uniprots_split_list = [uniprots[i:i + 2000] for i in range(0, len(uniprots), 2000)]
+uniprots_split_list = [uniprots[i:i + 1000] for i in range(0, len(uniprots), 1000)]
 
 output_lines = []
 uniprot_string = {}
@@ -166,62 +166,6 @@ with open(string_id_file_path, "w") as output_file:
     output_file.write("\n".join(output_lines))
 
 print(f"Mapping results saved to {string_id_file_path}")
-
-
-#------------------------------------------------------------------------------------------------------
-# Read STRING IDs from a text file, generate a network image, and compress the output
-output_format = "image"
-method = "network"
-
-# Set the path to the output folder
-output_folder = f"{output_dir}/string_result/network_results"
-
-# Create the output folder if it does not exist
-if not os.path.exists(output_folder):
-    os.makedirs(output_folder)
-
-##
-## Construct URL
-##
-request_url = "/".join([string_api_url, output_format, method])
-
-## For each protein call STRING
-for uniprot in uniprot_string.keys():
-    string = uniprot_string[uniprot]
-    file_name = os.path.join(output_folder, f"{uniprot}_{string}_network.png")
-
-    if os.path.exists(file_name) == False:
-        ##
-        ## Set parameters
-        ##
-        params = {
-            "identifiers": string,  # your protein
-            "species": species_ncbi_ids[selected_species],  # species NCBI identifier
-            "add_white_nodes": 15,  # add 15 white nodes to my protein
-            "network_flavor": "confidence",  # show confidence links
-            "caller_identity": "www.awesome_app.org"  # your app name
-        }
-
-        ##
-        ## Call STRING
-        ##
-        response = requests.post(request_url, data=params)
-
-        if response.status_code == 200:
-            ##
-            ## Save the network to file
-            ##
-            print("Saving interaction network to %s" % file_name)
-
-            with open(file_name, 'wb') as fh:
-                fh.write(response.content)
-
-            img = Image.open(file_name)
-            new_img = Image.new("RGB", img.size, "WHITE")
-            new_img.paste(img, (0, 0), img)
-            new_img.save(file_name)
-
-        sleep(2)
 
 
 #------------------------------------------------------------------------------------------------------
@@ -414,9 +358,8 @@ csv_file = f'{output_dir}/string_result/{ligand_name}/functional_enrichment_resu
 df = pd.read_csv(csv_file)
 
 # Sort the DataFrame by 'Count_in_Set' in descending order
-df = df.sort_values(by='FDR', ascending=True)
+df = df.sort_values(by='Count_in_Set', ascending=False)
 df = df.head(30)
-df = df.sort_values(['FDR','Count_in_Set'], ascending=[True, False])
 
 # Create a color palette based on the FDR values
 norm = plt.Normalize(df['FDR'].min(), df['FDR'].max())
