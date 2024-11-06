@@ -60,4 +60,4 @@ python main_string.py \
 |--output_path| Specify the same path in `main_prepare.py`.| no default
 |--vina_csv_path| Specify the path of the docking result csv output by `main_dock.py`.| no default
 |--top_n| The analysis is performed for proteins up to the rank specified here.| 100
-|--thre_score| You can perform the analysis for proteins less than the score specified here.| no default
+|--thre_score| You can perform the analysis for proteins less than the score specified here (For example, "-8").| no default
