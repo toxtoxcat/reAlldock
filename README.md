@@ -40,8 +40,9 @@ python main_dock.py \
 |Arguments| Description|Default value
 |--|--|--|
 |--output_path| Specify the same path in `main_prepare.py`.| no default
-|--ligand_path| Specfy the absolute path of the ligand. sdf or mol2 file are available.| no default
+|--ligand_path| Specfy the absolute path of the input ligand. sdf or mol2 file are available.| no default
 |--smiles| You can also specify SMILES instead of ligand files.| no default
+|--ligand_name| Specify the input ligand name.| no default
 |--vina_executable_path| Specify the absolute path of the Vina-GPU executable file.| no default
 |--thread| Vina-GPU option| 1000
 |--size_x| Vina-GPU option| 20
@@ -59,4 +60,4 @@ python main_string.py \
 |--output_path| Specify the same path in `main_prepare.py`.| no default
 |--vina_csv_path| Specify the path of the docking result csv output by `main_dock.py`.| no default
 |--top_n| The analysis is performed for proteins up to the rank specified here.| 100
-|--thre_score| The analysis is performed for proteins less than the score specified here.| -8
+|--thre_score| You can perform the analysis for proteins less than the score specified here.| no default
