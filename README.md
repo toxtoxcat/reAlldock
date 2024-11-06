@@ -7,7 +7,7 @@ reAlldock downloads all AlphaFold structures from the proteome of any species in
 - Sufficient free storage space over 1TB is recommended.
 
 ## Installation
-1. Install [Vina-GPU](https://github.com/DeltaGroupNJUPT/Vina-GPU-2.1).
+1. Install [Vina-GPU-CUDA](https://github.com/Glinttsd/Vina-GPU-CUDA).
 
 2. Clone current repo.
 ```
