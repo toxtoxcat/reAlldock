@@ -24,13 +24,13 @@ conda install -c anaconda requests
 ```
 
 ## Usage
-1. Download AlphaFold structures and prepare docking. Running the code will display a list of species available for download from [AlphaFold Database](https://alphafold.ebi.ac.uk/). Enter the number of the species in the list, then download will begin. After download, Creating pdbqt files and Running fpocket will begin. The coordinates of the pockets identified by fpocket are used in the next `main_dock.py`
+1. Download AlphaFold structures and prepare docking. Running the code will display a list of species available for download from [AlphaFold Database](https://alphafold.ebi.ac.uk/). Enter the number of the species in the list, then download will begin. After download, Creating pdbqt files and Running fpocket will begin. The output csv file contains the coordinates of the pockets identified by fpocket and average pLDDT for each AlphaFold structure. The coordinates are used in the next `main_dock.py`
 ```
 python main_prepare.py \
         --output_path {Absolute path of the output directory}
 ```
 
-2. Running Vina-GPU. A csv file summarizing the Vina-GPU results and a png file with a histogram of docking scores will be output.
+2. Running Vina-GPU. The output csv and png summarize Vina-GPU results.
 ```
 python main_dock.py \
         --output_path {The same output path you specified in `main_prepare.py`} \
@@ -49,7 +49,7 @@ python main_dock.py \
 |--size_y| Vina-GPU option| 20
 |--size_z| Vina-GPU option| 20
 
-3. Perform Enrichment analysis using [String API](https://string-db.org/help/api/) for the top N docking score proteins. The list of species will be displayed again. Enter the same number you selected in `main_prepare.py`. The following command will output the result of enrichment analysis and the String network image of the high docking score proteins.
+3. Perform Enrichment analysis using [String API](https://string-db.org/help/api/) for the top N docking score proteins. The following command will output the result of enrichment analysis and the String network image of the high docking score proteins.
 ```
 python main_string.py \
         --output_path {The same output path you specified in `main_prepare.py`} \
