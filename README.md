@@ -49,7 +49,7 @@ python main_dock.py \
 |--size_y| Vina-GPU option| 20
 |--size_z| Vina-GPU option| 20
 
-3. Perform Enrichment analysis using [String API](https://string-db.org/help/api/) for the top N docking score proteins. The following command will output the result of enrichment analysis and the String network image of the high docking score proteins.
+3. Perform enrichment analysis using [String API](https://string-db.org/help/api/) for the top N docking score proteins. The following command will output the result of enrichment analysis and the String network image of the high docking score proteins. Note that if the number of input proteins extracted is too large, enrichment analysis will not work.
 ```
 python main_string.py \
         --output_path {The same output path you specified in `main_prepare.py`} \
