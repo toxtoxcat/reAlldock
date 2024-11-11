@@ -1,4 +1,4 @@
-import os, math, requests
+import os, math, requests, sys
 from argparse import ArgumentParser
 from time import sleep
 from PIL import Image
@@ -12,8 +12,8 @@ def get_parser():
     parser = ArgumentParser()
     parser.add_argument('-o','--output_path', type=str, default=None, required=True)
     parser.add_argument('--vina_csv_path', type=str, default=None, required=True)
-    parser.add_argument('--top_n', type=float, default = 100 )
-    parser.add_argument('--thre_score', type=float, default = -8 )
+    parser.add_argument('--top_n', type=int, default=None )
+    parser.add_argument('--thre_score', type=float, default=None)
 
     return parser
 
@@ -21,15 +21,17 @@ _args = get_parser().parse_args()
 output_dir = _args.output_path
 vina_csv_path = _args.vina_csv_path
 ligand_name = os.path.basename(vina_csv_path).replace('_vina_results.csv', '')
-top_n = _args.top_n
-thre_score = _args.thre_score
+
+if _args.thre_score is not None and _args.top_n is not None:
+    print("error: You cannot specify both --top_n and --thre_score")
+    sys.exit()
 
 os.makedirs(f'{output_dir}/string_result', exist_ok=True)
 os.makedirs(f'{output_dir}/string_result/{ligand_name}', exist_ok=True)
 
 
 #------------------------------------------------------------------------------------------------------
-# Read vina_result_csv and extract uniprot list
+# Read vina_result_csv and extract uniprot list and ncbi id
 df_vina_result = pd.read_csv(vina_csv_path, index_col=0)
 AFs = df_vina_result.index.values.tolist()
 UFs = []
@@ -40,80 +42,8 @@ for UF in UFs:
     uniprots.append(UF.split("-")[0])
 uniprots = list(set(uniprots))
 
-
-#------------------------------------------------------------------------------------------------------
-# Dictionary mapping species names to their NCBI IDs
-species_ncbi_ids = {
-    'Arabidopsis': 3702,
-    'Nematode worm': 6239,
-    'C. albicans': 237561,
-    'Zebrafish': 7955,
-    'Dictyostelium': 44689,
-    'Fruit fly': 7227,
-    'E. coli': 83333,
-    'Soybean': 3847,
-    'Human': 9606,
-    'M. jannaschii': 243232,
-    'Mouse': 10090,
-    'Asian rice': 39947,
-    'Rat': 10116,
-    'Budding yeast': 559292,
-    'Fission yeast': 284812,
-    'Maize': 4577,
-    'Ajellomyces capsulatus': 447093,
-    'Brugia malayi': 6279,
-    'C. jejuni': 192222,
-    'Cladophialophora carrionii': 86049,
-    'Dracunculus medinensis': 318479,
-    'Enterococcus faecium': 1352,
-    'Fonsecaea pedrosoi': 1442368,
-    'H. influenzae': 71421,
-    'H. pylori': 85962,
-    'K. pneumoniae': 1125630,
-    'L. infantum': 5671,
-    'Madurella mycetomatis': 100816,
-    'Mycobacterium leprae': 272631,
-    'M. tuberculosis': 83332,
-    'Mycobacterium ulcerans': 1299332,
-    'N. gonorrhoeae': 242231,
-    'Nocardia brasiliensis': 1133849,
-    'Onchocerca volvulus': 6282,
-    'Paracoccidioides lutzii': 502779,
-    'P. falciparum': 36329,
-    'P. aeruginosa': 208964,
-    'S. typhimurium': 99287,
-    'Schistosoma mansoni': 6183,
-    'S. dysenteriae': 300267,
-    'Sporothrix schenckii': 1391915,
-    'S. aureus': 93061,
-    'S. pneumoniae': 171101,
-    'Strongyloides stercoralis': 6248,
-    'Trichuris trichiura': 36087,
-    'Trypanosoma brucei': 185431,
-    'T. cruzi': 353153,
-    'Wuchereria bancrofti': 6293,
-}
-
-# Prompt user to select a species
-print("Select a species:")
-for index, species in enumerate(species_ncbi_ids.keys(), 1):
-    print(f"{index}. {species}")
-
-selection = input("Enter the number corresponding to the desired species: ")
-
-# Validate user input
-try:
-    selection_index = int(selection)
-    if 1 <= selection_index <= len(species_ncbi_ids):
-        selected_species = list(species_ncbi_ids.keys())[selection_index - 1]
-        ncbi_id = species_ncbi_ids[selected_species]
-    else:
-        raise ValueError
-except ValueError:
-    print("Invalid input. Please enter a valid number.")
-    exit()
-
-print(f"NCBI ID for {selected_species}: {ncbi_id}")
+df_vina_result_new = pd.read_csv(vina_csv_path)
+ncbi_id = df_vina_result_new.columns.values[0].split("_")[1]
 
 
 #------------------------------------------------------------------------------------------------------
@@ -128,48 +58,60 @@ uniprots_split_list = [uniprots[i:i + 1000] for i in range(0, len(uniprots), 100
 output_lines = []
 uniprot_string = {}
 
-for uniprots_split in uniprots_split_list:
-    params = {
-        "identifiers": "\r".join(uniprots_split),  # Assuming 'UniprotID'
-        "species": species_ncbi_ids[selected_species],  # Use the NCBI ID corresponding to the selected species
-        "limit": 1,  # only one (best) identifier per input protein
-        "echo_query": 1,  # see your input identifiers in the output
-        "caller_identity": "www.awesome_app.org"  # your app name
-    }
+if not os.path.exists(f'{output_dir}/string_result/string_api_mapping.txt'):
+    print("retrieving the STRING IDs through the STRING database API.")
+    for uniprots_split in uniprots_split_list:
+        params = {
+            "identifiers": "\r".join(uniprots_split),  # Assuming 'UniprotID'
+            "species": ncbi_id,  # Use the NCBI ID corresponding to the selected species
+            "limit": 1,  # only one (best) identifier per input protein
+            "echo_query": 1,  # see your input identifiers in the output
+            "caller_identity": "www.awesome_app.org"  # your app name
+        }
+
+        ##
+        ## Construct URL
+        ##
+        request_url = "/".join([string_api_url, output_format, method])
+
+        ##
+        ## Call STRING
+        ##
+        results = requests.post(request_url, data=params)
+
+        ##
+        ## Read and parse the results
+        ##
+        for line in results.text.strip().split("\n"):
+            l = line.split("\t")
+            input_identifier, string_identifier = l[0], l[2]
+            uniprot_string[input_identifier] = string_identifier
+            output_lines.append(f"Input: {input_identifier}\tSTRING: {string_identifier}")
+
+        sleep(1)
 
     ##
-    ## Construct URL
+    ## Write results to text file
     ##
-    request_url = "/".join([string_api_url, output_format, method])
+    string_id_file_path = f'{output_dir}/string_result/string_api_mapping.txt'
+    with open(string_id_file_path, "w") as output_file:
+        output_file.write("\n".join(output_lines))
 
-    ##
-    ## Call STRING
-    ##
-    results = requests.post(request_url, data=params)
+    print(f"Mapping results saved to {string_id_file_path}")
 
-    ##
-    ## Read and parse the results
-    ##
-    for line in results.text.strip().split("\n"):
-        l = line.split("\t")
-        input_identifier, string_identifier = l[0], l[2]
-        uniprot_string[input_identifier] = string_identifier
-        output_lines.append(f"Input: {input_identifier}\tSTRING: {string_identifier}")
-
-    sleep(1)
-
-##
-## Write results to text file
-##
-string_id_file_path = f'{output_dir}/string_result/string_api_mapping.txt'
-with open(string_id_file_path, "w") as output_file:
-    output_file.write("\n".join(output_lines))
-
-print(f"Mapping results saved to {string_id_file_path}")
+else:
+    print("The String ID file is already exists.")
+    with open(f'{output_dir}/string_result/string_api_mapping.txt') as file:
+        lines = file.readlines()
+        lines = [line.strip() for line in lines]
+        for line in lines:
+            l = line.split("\t")
+            input_identifier, string_identifier = l[0][7:], l[1][8:]
+            uniprot_string[input_identifier] = string_identifier
 
 
 #------------------------------------------------------------------------------------------------------
-# Extract TOP_n and under thre_score proteins
+# Extract TOP_n or under thre_score proteins
 uniprot_score = {}
 
 for uniprot in uniprots:
@@ -184,17 +126,31 @@ for uniprot in uniprots:
             min_score_in_s_UFs = s_UF_score
     uniprot_score[uniprot] = min_score_in_s_UFs
 
-uniprot_score = {uniprot: score for uniprot, score in uniprot_score.items() if score <= thre_score } # Extract under thre_score
-uniprot_score = sorted(uniprot_score.items(), key=lambda x:x[1]) # Sort by ascending score
-uniprot_score_top_n = uniprot_score[:top_n]
+if _args.thre_score is None and _args.top_n is None:
+    top_n = 100
+    uniprot_score = sorted(uniprot_score.items(), key=lambda x:x[1]) # Sort by ascending score
+    uniprot_score_extracted = uniprot_score[:top_n]
+    print(f"Number of Extracted proteins : {len(uniprot_score_extracted)}")
 
-uniprot_string_top_n = {}
-for uniprot_score in uniprot_score_top_n:
+if _args.top_n is not None:
+    top_n = _args.top_n
+    uniprot_score = sorted(uniprot_score.items(), key=lambda x:x[1]) # Sort by ascending score
+    uniprot_score_extracted = uniprot_score[:top_n]
+    print(f"Number of Extracted proteins : {len(uniprot_score_extracted)}")
+
+if _args.thre_score is not None:
+    thre_score = _args.thre_score
+    uniprot_score_extracted = {uniprot: score for uniprot, score in uniprot_score.items() if score <= thre_score } # Extract under thre_score
+    uniprot_score_extracted = sorted(uniprot_score_extracted.items(), key=lambda x:x[1]) # Sort by ascending score
+    print(f"Number of Extracted proteins : {len(uniprot_score_extracted)}")
+
+uniprot_string_extracted = {}
+for uniprot_score in uniprot_score_extracted:
     uniprot = uniprot_score[0]
     if uniprot in uniprot_string.keys():
-        uniprot_string_top_n[uniprot] = uniprot_string[uniprot]
+        uniprot_string_extracted[uniprot] = uniprot_string[uniprot]
 
-identifiers_top_n = "%0d".join(uniprot_string_top_n.values())
+identifiers_extracted = "%0d".join(uniprot_string_extracted.values())
 
 
 #------------------------------------------------------------------------------------------------------
@@ -209,8 +165,8 @@ network_url = f"{string_api_url}/{output_format}/{method_network}"
 
 # Parameters for STRING API
 params_network = {
-    "identifiers": identifiers_top_n,
-    "species": species_ncbi_ids[selected_species],
+    "identifiers": identifiers_extracted,
+    "species": ncbi_id,
     "required_score": 400,
     "network_type": "functional"
 }
@@ -219,7 +175,7 @@ params_network = {
 network_response = requests.get(network_url, params=params_network)
 
 if network_response.status_code == 200:
-    output_image_path = f'{output_dir}/string_result/{ligand_name}/network_image_of_TOP{top_n}_proteins_for_{ligand_name}.png'
+    output_image_path = f'{output_dir}/string_result/{ligand_name}/network_image_of_extracted_proteins.png'
     with open(output_image_path, 'wb') as fh:
         fh.write(network_response.content)
         fh.close
@@ -243,7 +199,7 @@ def get_functional_annotation(identifiers):
     request_url = f"{string_api_url}/{output_format}/{method}"
     params = {
         "identifiers": identifiers,
-        "species": species_ncbi_ids[selected_species], 
+        "species": ncbi_id, 
         "caller_identity": "www.awesome_app.org"  # Your app name
     }
     response = requests.post(request_url, data=params)
@@ -254,7 +210,7 @@ def get_functional_annotation(identifiers):
         return None
     
 # Get and parse Functional annotation data
-functional_annotation_data = get_functional_annotation(identifiers_top_n)
+functional_annotation_data = get_functional_annotation(identifiers_extracted)
 if functional_annotation_data:
     df = pd.read_csv(StringIO(functional_annotation_data), sep='\t', header=None)
     # Manually inspect and set the appropriate column names
@@ -271,7 +227,7 @@ if functional_annotation_data:
     grouped_results.columns = ['category', 'term', 'description', 'Count_in_Set', 'inputGenes']
 
     # Save the results to a CSV file (optional)
-    grouped_results.to_csv(f'{output_dir}/string_result/{ligand_name}/functional_annotation_of_TOP{top_n}_proteins_for_{ligand_name}.csv', index=False)
+    grouped_results.to_csv(f'{output_dir}/string_result/{ligand_name}/functional_annotation_of_extracted_proteins.csv', index=False)
 else:
     print("Failed to retrieve functional annotation data.")
 
@@ -279,7 +235,7 @@ else:
 #------------------------------------------------------------------------------------------------------
 # Output the results in descending order of data quantity
 # Load the CSV file
-csv_file = f'{output_dir}/string_result/{ligand_name}/functional_annotation_of_TOP{top_n}_proteins_for_{ligand_name}.csv'
+csv_file = f'{output_dir}/string_result/{ligand_name}/functional_annotation_of_extracted_proteins.csv'
 df = pd.read_csv(csv_file)
 
 # Sort the DataFrame by 'Count_in_Set' in descending order
@@ -300,7 +256,7 @@ plt.legend(title='category')
 plt.tight_layout()
 
 # Save the image
-output_image_path = f'{output_dir}/string_result/{ligand_name}/Number_of_proteins_for_Each_Function_in_TOP{top_n}_Proteins_for_{ligand_name}.png'
+output_image_path = f'{output_dir}/string_result/{ligand_name}/Number_of_proteins_for_Each_Function_in_extracted_Proteins.png'
 plt.savefig(output_image_path)
 plt.close()
 
@@ -318,7 +274,7 @@ def get_functional_enrichments(identifiers):
     request_url = f"{string_api_url}/{output_format}/{method}"
     params = {
         "identifiers": identifiers,
-        "species": species_ncbi_ids[selected_species], 
+        "species": ncbi_id, 
         "caller_identity": "www.awesome_app.org"  # Your app name
     }
     response = requests.post(request_url, data=params)
@@ -329,7 +285,7 @@ def get_functional_enrichments(identifiers):
         return None
 
 # Get and parse Functional Enrichments data
-enrichment_data = get_functional_enrichments(identifiers_top_n)
+enrichment_data = get_functional_enrichments(identifiers_extracted)
 if enrichment_data:
     df = pd.read_csv(StringIO(enrichment_data), sep='\t', header=None)
     # Manually inspect and set the appropriate column names
@@ -341,11 +297,11 @@ if enrichment_data:
         df.columns = column_names + [f"extra_{i}" for i in range(len(df.columns) - len(column_names))]
 
     # Select relevant columns including description
-    grouped_results = df[['term', 'description', 'number_of_genes', 'number_of_genes_in_background', 'fdr']]
-    grouped_results.columns = ['term', 'description', 'Count_in_Set', 'Count_in_Background', 'FDR']
+    grouped_results = df[['term', 'description', 'number_of_genes', 'number_of_genes_in_background', 'fdr', 'genes_in_network']]
+    grouped_results.columns = ['term', 'description', 'Count_in_Set', 'Count_in_Background', 'FDR', 'genes_in_network']
 
     # Save the results to a CSV file (optional)
-    grouped_results.to_csv(f'{output_dir}/string_result/{ligand_name}/functional_enrichment_results_of_TOP{top_n}_proteins_for_{ligand_name}.csv', index=False)
+    grouped_results.to_csv(f'{output_dir}/string_result/{ligand_name}/functional_enrichment_results_of_extracted_proteins.csv', index=False)
 else:
     print("Failed to retrieve Functional Enrichments data.")
 
@@ -354,7 +310,7 @@ else:
 # Output the results in descending order of data quantity
 # The color of the bars is based on the FDR values
 # Load the CSV file
-csv_file = f'{output_dir}/string_result/{ligand_name}/functional_enrichment_results_of_TOP{top_n}_proteins_for_{ligand_name}.csv'
+csv_file = f'{output_dir}/string_result/{ligand_name}/functional_enrichment_results_of_extracted_proteins.csv'
 df = pd.read_csv(csv_file)
 
 # Sort the DataFrame by 'Count_in_Set' in descending order
@@ -381,6 +337,6 @@ plt.title('Number of Proteins for Each Function (Colored by FDR)')
 plt.tight_layout()
 
 # Save the image
-output_image_path = f'{output_dir}/string_result/{ligand_name}/functional_enrichment_results_of_TOP{top_n}_Proteins_for_{ligand_name}_Colored_by_FDR.png'
+output_image_path = f'{output_dir}/string_result/{ligand_name}/functional_enrichment_results_of_extracted_Proteins_Colored_by_FDR.png'
 plt.savefig(output_image_path)
 plt.close()

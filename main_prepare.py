@@ -256,7 +256,9 @@ for rawpdb_file in rawpdb_files:
         df_fpocket_plddt.loc[rawpdb_file, 'center_z'] = np.nan
     df_fpocket_plddt.loc[rawpdb_file, 'pLDDT'] = rawpdb_files_plddt[rawpdb_file]
 df_fpocket_plddt.to_csv(f'{output_dir}/fpocket-centroids_pLDDT.csv')
-
+df_fpocket_plddt_new = pd.read_csv(f'{output_dir}/fpocket-centroids_pLDDT.csv')
+df_fpocket_plddt_new.columns = [os.path.basename(selected_path)] + list(df_fpocket_plddt.columns)
+df_fpocket_plddt_new.to_csv(f'{output_dir}/fpocket-centroids_pLDDT.csv', index=False)
 
 #------------------------------------------------------------------------------------------------------
 # Create config files to run vina-GPU
