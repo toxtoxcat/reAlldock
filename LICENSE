@@ -19,3 +19,10 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
+
+### Third-Party Licenses 
+This project includes components that are licensed under different terms: 
+- *Vina-GPU2.0* is licensed under the *Apache License 2.0*. 
+- **AlphaFold2 models and data** are licensed under **Creative Commons Attribution 4.0 (CC-BY 4.0)**.  
+- Source: [AlphaFold Protein Structure Database](https://alphafold.ebi.ac.uk/)
+For details on these licenses, please see the respective repositoriesy.
