@@ -18,7 +18,7 @@ def get_parser():
     parser.add_argument('--vina_executable_path', type=str, default=None, required=True)
 
     # Vina-GPU option
-    parser.add_argument('--thread', type=str, default=1000)
+    parser.add_argument('--thread', type=str, default=8192)
     parser.add_argument('--size_x', type=str, default=20)
     parser.add_argument('--size_y', type=str, default=20)
     parser.add_argument('--size_z', type=str, default=20)
