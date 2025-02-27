@@ -6,8 +6,6 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 
-os.environ['CUDA_VISIBLE_DEVICES'] = '1'
-
 def get_parser():
 
     parser = ArgumentParser()
