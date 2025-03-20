@@ -220,8 +220,8 @@ def calculate_centroid_of_cluster1(pdb_file):
         lines = file.readlines()
         for line in lines:
             if line.startswith("HETATM"):
-                cluster_number = line[25]
-                if cluster_number == "1":
+                cluster_number = line[24:26]
+                if cluster_number == " 1":
                     x, y, z = float(line[30:37]), float(line[38:45]), float(line[46:53])
                     coordinates.append([x, y, z])
 
