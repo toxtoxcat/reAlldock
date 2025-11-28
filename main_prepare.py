@@ -16,57 +16,59 @@ output_dir = _args.output_path
 os.makedirs(f'{output_dir}/prepare_result', exist_ok=True)
 output_dir = f'{output_dir}/prepare_result'
 
+AF_ver = "v4"
+
 #------------------------------------------------------------------------------------------------------
 # Dictionary of species names and corresponding URLs
 download_urls = {
-    'Arabidopsis': 'https://ftp.ebi.ac.uk/pub/databases/alphafold/latest/UP000006548_3702_ARATH_v4.tar',
-    'Nematode worm': 'https://ftp.ebi.ac.uk/pub/databases/alphafold/latest/UP000001940_6239_CAEEL_v4.tar',
-    'C. albicans': 'https://ftp.ebi.ac.uk/pub/databases/alphafold/latest/UP000000559_237561_CANAL_v4.tar',
-    'Zebrafish': 'https://ftp.ebi.ac.uk/pub/databases/alphafold/latest/UP000000437_7955_DANRE_v4.tar',
-    'Dictyostelium': 'https://ftp.ebi.ac.uk/pub/databases/alphafold/latest/UP000002195_44689_DICDI_v4.tar',
-    'Fruit fly': 'https://ftp.ebi.ac.uk/pub/databases/alphafold/latest/UP000000803_7227_DROME_v4.tar',
-    'E. coli': 'https://ftp.ebi.ac.uk/pub/databases/alphafold/latest/UP000000625_83333_ECOLI_v4.tar',
-    'Soybean': 'https://ftp.ebi.ac.uk/pub/databases/alphafold/latest/UP000008827_3847_SOYBN_v4.tar',
-    'Human': 'https://ftp.ebi.ac.uk/pub/databases/alphafold/latest/UP000005640_9606_HUMAN_v4.tar',
-    'M. jannaschii': 'https://ftp.ebi.ac.uk/pub/databases/alphafold/latest/UP000000805_243232_METJA_v4.tar',
-    'Mouse': 'https://ftp.ebi.ac.uk/pub/databases/alphafold/latest/UP000000589_10090_MOUSE_v4.tar',
-    'Asian rice': 'https://ftp.ebi.ac.uk/pub/databases/alphafold/latest/UP000059680_39947_ORYSJ_v4.tar',
-    'Rat': 'https://ftp.ebi.ac.uk/pub/databases/alphafold/latest/UP000002494_10116_RAT_v4.tar',
-    'Budding yeast': 'https://ftp.ebi.ac.uk/pub/databases/alphafold/latest/UP000002311_559292_YEAST_v4.tar',
-    'Fission yeast': 'https://ftp.ebi.ac.uk/pub/databases/alphafold/latest/UP000002485_284812_SCHPO_v4.tar',
-    'Maize': 'https://ftp.ebi.ac.uk/pub/databases/alphafold/latest/UP000007305_4577_MAIZE_v4.tar',
-    'Ajellomyces capsulatus': 'https://ftp.ebi.ac.uk/pub/databases/alphafold/latest/UP000001631_447093_AJECG_v4.tar',
-    'Brugia malayi': 'https://ftp.ebi.ac.uk/pub/databases/alphafold/latest/UP000006672_6279_BRUMA_v4.tar',
-    'C. jejuni': 'https://ftp.ebi.ac.uk/pub/databases/alphafold/latest/UP000000799_192222_CAMJE_v4.tar',
-    'Cladophialophora carrionii': 'https://ftp.ebi.ac.uk/pub/databases/alphafold/latest/UP000094526_86049_9EURO1_v4.tar',
-    'Dracunculus medinensis': 'https://ftp.ebi.ac.uk/pub/databases/alphafold/latest/UP000274756_318479_DRAME_v4.tar',
-    'Enterococcus faecium': 'https://ftp.ebi.ac.uk/pub/databases/alphafold/latest/UP000325664_1352_ENTFC_v4.tar',
-    'Fonsecaea pedrosoi': 'https://ftp.ebi.ac.uk/pub/databases/alphafold/latest/UP000053029_1442368_9EURO2_v4.tar',
-    'H. influenzae': 'https://ftp.ebi.ac.uk/pub/databases/alphafold/latest/UP000000579_71421_HAEIN_v4.tar',
-    'H. pylori': 'https://ftp.ebi.ac.uk/pub/databases/alphafold/latest/UP000000429_85962_HELPY_v4.tar',
-    'K. pneumoniae': 'https://ftp.ebi.ac.uk/pub/databases/alphafold/latest/UP000007841_1125630_KLEPH_v4.tar',
-    'L. infantum': 'https://ftp.ebi.ac.uk/pub/databases/alphafold/latest/UP000008153_5671_LEIIN_v4.tar',
-    'Madurella mycetomatis': 'https://ftp.ebi.ac.uk/pub/databases/alphafold/latest/UP000078237_100816_9PEZI1_v4.tar',
-    'Mycobacterium leprae': 'https://ftp.ebi.ac.uk/pub/databases/alphafold/latest/UP000000806_272631_MYCLE_v4.tar',
-    'M. tuberculosis': 'https://ftp.ebi.ac.uk/pub/databases/alphafold/latest/UP000001584_83332_MYCTU_v4.tar',
-    'Mycobacterium ulcerans': 'https://ftp.ebi.ac.uk/pub/databases/alphafold/latest/UP000020681_1299332_MYCUL_v4.tar',
-    'N. gonorrhoeae': 'https://ftp.ebi.ac.uk/pub/databases/alphafold/latest/UP000000535_242231_NEIG1_v4.tar',
-    'Nocardia brasiliensis': 'https://ftp.ebi.ac.uk/pub/databases/alphafold/latest/UP000006304_1133849_9NOCA1_v4.tar',
-    'Onchocerca volvulus': 'https://ftp.ebi.ac.uk/pub/databases/alphafold/latest/UP000024404_6282_ONCVO_v4.tar',
-    'Paracoccidioides lutzii': 'https://ftp.ebi.ac.uk/pub/databases/alphafold/latest/UP000002059_502779_PARBA_v4.tar',
-    'P. falciparum': 'https://ftp.ebi.ac.uk/pub/databases/alphafold/latest/UP000001450_36329_PLAF7_v4.tar',
-    'P. aeruginosa': 'https://ftp.ebi.ac.uk/pub/databases/alphafold/latest/UP000002438_208964_PSEAE_v4.tar',
-    'S. typhimurium': 'https://ftp.ebi.ac.uk/pub/databases/alphafold/latest/UP000001014_99287_SALTY_v4.tar',
-    'Schistosoma mansoni': 'https://ftp.ebi.ac.uk/pub/databases/alphafold/latest/UP000008854_6183_SCHMA_v4.tar',
-    'S. dysenteriae': 'https://ftp.ebi.ac.uk/pub/databases/alphafold/latest/UP000002716_300267_SHIDS_v4.tar',
-    'Sporothrix schenckii': 'https://ftp.ebi.ac.uk/pub/databases/alphafold/latest/UP000018087_1391915_SPOS1_v4.tar',
-    'S. aureus': 'https://ftp.ebi.ac.uk/pub/databases/alphafold/latest/UP000008816_93061_STAA8_v4.tar',
-    'S. pneumoniae': 'https://ftp.ebi.ac.uk/pub/databases/alphafold/latest/UP000000586_171101_STRR6_v4.tar',
-    'Strongyloides stercoralis': 'https://ftp.ebi.ac.uk/pub/databases/alphafold/latest/UP000035681_6248_STRER_v4.tar',
-    'Trichuris trichiura': 'https://ftp.ebi.ac.uk/pub/databases/alphafold/latest/UP000030665_36087_TRITR_v4.tar',
-    'Trypanosoma brucei': 'https://ftp.ebi.ac.uk/pub/databases/alphafold/latest/UP000008524_185431_TRYB2_v4.tar',
-    'T. cruzi': 'https://ftp.ebi.ac.uk/pub/databases/alphafold/latest/UP000002296_353153_TRYCC_v4.tar',
-    'Wuchereria bancrofti': 'https://ftp.ebi.ac.uk/pub/databases/alphafold/latest/UP000270924_6293_WUCBA_v4.tar',
+    'Arabidopsis': f'https://ftp.ebi.ac.uk/pub/databases/alphafold/{AF_ver}/UP000006548_3702_ARATH_{AF_ver}.tar',
+    'Nematode worm': f'https://ftp.ebi.ac.uk/pub/databases/alphafold/{AF_ver}/UP000001940_6239_CAEEL_{AF_ver}.tar',
+    'C. albicans': f'https://ftp.ebi.ac.uk/pub/databases/alphafold/{AF_ver}/UP000000559_237561_CANAL{AF_ver}.tar',
+    'Zebrafish': f'https://ftp.ebi.ac.uk/pub/databases/alphafold/{AF_ver}/UP000000437_7955_DANRE_{AF_ver}.tar',
+    'Dictyostelium': f'https://ftp.ebi.ac.uk/pub/databases/alphafold/{AF_ver}/UP000002195_44689_DICDI_{AF_ver}.tar',
+    'Fruit fly': f'https://ftp.ebi.ac.uk/pub/databases/alphafold/{AF_ver}/UP000000803_7227_DROME_{AF_ver}.tar',
+    'E. coli': f'https://ftp.ebi.ac.uk/pub/databases/alphafold/{AF_ver}/UP000000625_83333_ECOLI_{AF_ver}.tar',
+    'Soybean': f'https://ftp.ebi.ac.uk/pub/databases/alphafold/{AF_ver}/UP000008827_3847_SOYBN_{AF_ver}.tar',
+    'Human': f'https://ftp.ebi.ac.uk/pub/databases/alphafold/{AF_ver}/UP000005640_9606_HUMAN_{AF_ver}.tar',
+    'M. jannaschii': f'https://ftp.ebi.ac.uk/pub/databases/alphafold/{AF_ver}/UP000000805_243232_METJA_{AF_ver}.tar',
+    'Mouse': f'https://ftp.ebi.ac.uk/pub/databases/alphafold/{AF_ver}/UP000000589_10090_MOUSE_{AF_ver}.tar',
+    'Asian rice': f'https://ftp.ebi.ac.uk/pub/databases/alphafold/{AF_ver}/UP000059680_39947_ORYSJ_{AF_ver}.tar',
+    'Rat': f'https://ftp.ebi.ac.uk/pub/databases/alphafold/{AF_ver}/UP000002494_10116_RAT_{AF_ver}.tar',
+    'Budding yeast': f'https://ftp.ebi.ac.uk/pub/databases/alphafold/{AF_ver}/UP000002311_559292_YEAST_{AF_ver}.tar',
+    'Fission yeast': f'https://ftp.ebi.ac.uk/pub/databases/alphafold/{AF_ver}/UP000002485_284812_SCHPO_{AF_ver}.tar',
+    'Maize': f'https://ftp.ebi.ac.uk/pub/databases/alphafold/{AF_ver}/UP000007305_4577_MAIZE_{AF_ver}.tar',
+    'Ajellomyces capsulatus': f'https://ftp.ebi.ac.uk/pub/databases/alphafold/{AF_ver}/UP000001631_447093_AJECG_{AF_ver}.tar',
+    'Brugia malayi': f'https://ftp.ebi.ac.uk/pub/databases/alphafold/{AF_ver}/UP000006672_6279_BRUMA_{AF_ver}.tar',
+    'C. jejuni': f'https://ftp.ebi.ac.uk/pub/databases/alphafold/{AF_ver}/UP000000799_192222_CAMJE_{AF_ver}.tar',
+    'Cladophialophora carrionii': f'https://ftp.ebi.ac.uk/pub/databases/alphafold/{AF_ver}/UP000094526_86049_9EURO1_{AF_ver}.tar',
+    'Dracunculus medinensis': f'https://ftp.ebi.ac.uk/pub/databases/alphafold/{AF_ver}/UP000274756_318479_DRAME_{AF_ver}.tar',
+    'Enterococcus faecium': f'https://ftp.ebi.ac.uk/pub/databases/alphafold/{AF_ver}/UP000325664_1352_ENTFC_{AF_ver}.tar',
+    'Fonsecaea pedrosoi': f'https://ftp.ebi.ac.uk/pub/databases/alphafold/{AF_ver}/UP000053029_1442368_9EURO2_{AF_ver}.tar',
+    'H. influenzae': f'https://ftp.ebi.ac.uk/pub/databases/alphafold/{AF_ver}/UP000000579_71421_HAEIN_{AF_ver}.tar',
+    'H. pylori': f'https://ftp.ebi.ac.uk/pub/databases/alphafold/{AF_ver}/UP000000429_85962_HELPY_{AF_ver}.tar',
+    'K. pneumoniae': f'https://ftp.ebi.ac.uk/pub/databases/alphafold/{AF_ver}/UP000007841_1125630_KLEPH_{AF_ver}.tar',
+    'L. infantum': f'https://ftp.ebi.ac.uk/pub/databases/alphafold/{AF_ver}/UP000008153_5671_LEIIN_{AF_ver}.tar',
+    'Madurella mycetomatis': f'https://ftp.ebi.ac.uk/pub/databases/alphafold/{AF_ver}/UP000078237_100816_9PEZI1_{AF_ver}.tar',
+    'Mycobacterium leprae': f'https://ftp.ebi.ac.uk/pub/databases/alphafold/{AF_ver}/UP000000806_272631_MYCLE_{AF_ver}.tar',
+    'M. tuberculosis': f'https://ftp.ebi.ac.uk/pub/databases/alphafold/{AF_ver}/UP000001584_83332_MYCTU_{AF_ver}.tar',
+    'Mycobacterium ulcerans': f'https://ftp.ebi.ac.uk/pub/databases/alphafold/{AF_ver}/UP000020681_1299332_MYCUL_{AF_ver}.tar',
+    'N. gonorrhoeae': f'https://ftp.ebi.ac.uk/pub/databases/alphafold/{AF_ver}/UP000000535_242231_NEIG1_{AF_ver}.tar',
+    'Nocardia brasiliensis': f'https://ftp.ebi.ac.uk/pub/databases/alphafold/{AF_ver}/UP000006304_1133849_9NOCA1_{AF_ver}.tar',
+    'Onchocerca volvulus': f'https://ftp.ebi.ac.uk/pub/databases/alphafold/{AF_ver}/UP000024404_6282_ONCVO_{AF_ver}.tar',
+    'Paracoccidioides lutzii': f'https://ftp.ebi.ac.uk/pub/databases/alphafold/{AF_ver}/UP000002059_502779_PARBA_{AF_ver}.tar',
+    'P. falciparum': f'https://ftp.ebi.ac.uk/pub/databases/alphafold/{AF_ver}/UP000001450_36329_PLAF7_{AF_ver}.tar',
+    'P. aeruginosa': f'https://ftp.ebi.ac.uk/pub/databases/alphafold/{AF_ver}/UP000002438_208964_PSEAE_{AF_ver}.tar',
+    'S. typhimurium': f'https://ftp.ebi.ac.uk/pub/databases/alphafold/{AF_ver}/UP000001014_99287_SALTY_{AF_ver}.tar',
+    'Schistosoma mansoni': f'https://ftp.ebi.ac.uk/pub/databases/alphafold/{AF_ver}/UP000008854_6183_SCHMA_{AF_ver}.tar',
+    'S. dysenteriae': f'https://ftp.ebi.ac.uk/pub/databases/alphafold/{AF_ver}/UP000002716_300267_SHIDS_{AF_ver}.tar',
+    'Sporothrix schenckii': f'https://ftp.ebi.ac.uk/pub/databases/alphafold/{AF_ver}/UP000018087_1391915_SPOS1_{AF_ver}.tar',
+    'S. aureus': f'https://ftp.ebi.ac.uk/pub/databases/alphafold/{AF_ver}/UP000008816_93061_STAA8_{AF_ver}.tar',
+    'S. pneumoniae': f'https://ftp.ebi.ac.uk/pub/databases/alphafold/{AF_ver}/UP000000586_171101_STRR6_{AF_ver}.tar',
+    'Strongyloides stercoralis': f'https://ftp.ebi.ac.uk/pub/databases/alphafold/{AF_ver}/UP000035681_6248_STRER_{AF_ver}.tar',
+    'Trichuris trichiura': f'https://ftp.ebi.ac.uk/pub/databases/alphafold/{AF_ver}/UP000030665_36087_TRITR_{AF_ver}.tar',
+    'Trypanosoma brucei': f'https://ftp.ebi.ac.uk/pub/databases/alphafold/{AF_ver}/UP000008524_185431_TRYB2_{AF_ver}.tar',
+    'T. cruzi': f'https://ftp.ebi.ac.uk/pub/databases/alphafold/{AF_ver}/UP000002296_353153_TRYCC_{AF_ver}.tar',
+    'Wuchereria bancrofti': f'https://ftp.ebi.ac.uk/pub/databases/alphafold/{AF_ver}/UP000270924_6293_WUCBA_{AF_ver}.tar',
 }
 
 file_list = list(download_urls.keys())
@@ -220,8 +222,8 @@ def calculate_centroid_of_cluster1(pdb_file):
         lines = file.readlines()
         for line in lines:
             if line.startswith("HETATM"):
-                cluster_number = line[24:26]
-                if cluster_number == " 1":
+                cluster_number = line[25]
+                if cluster_number == "1":
                     x, y, z = float(line[30:37]), float(line[38:45]), float(line[46:53])
                     coordinates.append([x, y, z])
 
@@ -256,9 +258,7 @@ for rawpdb_file in rawpdb_files:
         df_fpocket_plddt.loc[rawpdb_file, 'center_z'] = np.nan
     df_fpocket_plddt.loc[rawpdb_file, 'pLDDT'] = rawpdb_files_plddt[rawpdb_file]
 df_fpocket_plddt.to_csv(f'{output_dir}/fpocket-centroids_pLDDT.csv')
-df_fpocket_plddt_new = pd.read_csv(f'{output_dir}/fpocket-centroids_pLDDT.csv')
-df_fpocket_plddt_new.columns = [os.path.basename(selected_path)] + list(df_fpocket_plddt.columns)
-df_fpocket_plddt_new.to_csv(f'{output_dir}/fpocket-centroids_pLDDT.csv', index=False)
+
 
 #------------------------------------------------------------------------------------------------------
 # Create config files to run vina-GPU
