@@ -7,6 +7,7 @@ def get_parser():
 
     parser = ArgumentParser()
     parser.add_argument('-o','--output_path', type=str, default=None, required=True)
+    parser.add_argument('-v','--af_ver', type=str, default="v6", required=False)
 
     return parser
 
@@ -16,7 +17,7 @@ output_dir = _args.output_path
 os.makedirs(f'{output_dir}/prepare_result', exist_ok=True)
 output_dir = f'{output_dir}/prepare_result'
 
-AF_ver = "v4"
+AF_ver = _args.af_ver
 
 #------------------------------------------------------------------------------------------------------
 # Dictionary of species names and corresponding URLs
@@ -84,7 +85,13 @@ try:
     elif 1 <= user_choice <= len(file_list):
         selected_species = file_list[user_choice - 1]
         selected_path = download_urls[selected_species]
-        os.system(f"wget {selected_path} -P {output_dir} -c")
+        selected_tar_file = os.path.basename(selected_path)
+        exist_tar_files = [f for f in os.listdir(output_dir) if f.endswith(".tar")]
+        if any(f != selected_tar_file for f in exist_tar_files):
+            print("Invalid selection. Inside the output folder, there is a tar file with a different name than the one you selected.")
+            sys.exit()
+        else:
+            os.system(f"wget {selected_path} -P {output_dir} -c")
 
     else:
         print("Invalid selection. Please select the correct number.")
@@ -258,6 +265,9 @@ for rawpdb_file in rawpdb_files:
         df_fpocket_plddt.loc[rawpdb_file, 'center_z'] = np.nan
     df_fpocket_plddt.loc[rawpdb_file, 'pLDDT'] = rawpdb_files_plddt[rawpdb_file]
 df_fpocket_plddt.to_csv(f'{output_dir}/fpocket-centroids_pLDDT.csv')
+df_fpocket_plddt_new = pd.read_csv(f'{output_dir}/fpocket-centroids_pLDDT.csv')
+df_fpocket_plddt_new.columns = [os.path.basename(selected_path)] + list(df_fpocket_plddt.columns)
+df_fpocket_plddt_new.to_csv(f'{output_dir}/fpocket-centroids_pLDDT.csv', index=False)
 
 
 #------------------------------------------------------------------------------------------------------

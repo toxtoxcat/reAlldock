@@ -37,7 +37,8 @@ AFs = df_vina_result.index.values.tolist()
 UFs = []
 uniprots = []
 for AF in AFs:
-    UFs.append(AF.replace('AF-','').replace('-model_v4',''))
+    AF_ver = AF.split('_')[1]
+    UFs.append(AF.replace('AF-','').replace(f'-model_{AF_ver}',''))
 for UF in UFs:
     uniprots.append(UF.split("-")[0])
 uniprots = list(set(uniprots))
@@ -115,16 +116,16 @@ else:
 uniprot_score = {}
 
 for uniprot in uniprots:
-    s_UFs = [UF for UF in UFs if UF.startswith(f"{uniprot}-")]
-    min_score_in_s_UFs = 0
-    for s_UF in s_UFs:
-        if math.isnan(df_vina_result.at[f"AF-{s_UF}-model_v4","vina_score"]) == False:
-            s_UF_score = float(df_vina_result.at[f"AF-{s_UF}-model_v4","vina_score"])
+    s_AFs = [AF for AF in AFs if f"-{uniprot}-" in AF]
+    min_score_in_s_AFs = 0
+    for s_AF in s_AFs:
+        if math.isnan(df_vina_result.at[s_AF,"vina_score"]) == False:
+            s_AF_score = float(df_vina_result.at[s_AF,"vina_score"])
         else:
-            s_UF_score = 0
-        if s_UF_score < min_score_in_s_UFs:
-            min_score_in_s_UFs = s_UF_score
-    uniprot_score[uniprot] = min_score_in_s_UFs
+            s_AF_score = 0
+        if s_AF_score < min_score_in_s_AFs:
+            min_score_in_s_AFs = s_AF_score
+    uniprot_score[uniprot] = min_score_in_s_AFs
 
 if _args.thre_score is None and _args.top_n is None:
     top_n = 100
