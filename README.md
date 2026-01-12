@@ -29,6 +29,10 @@ conda install -c anaconda requests
 python main_prepare.py \
         --output_path {Absolute path of the output directory}
 ```
+|Arguments| Description|Default value
+|--|--|--|
+|--output_path| Specify the absolute path of the output directory.| no default
+|--af_ver| Specify the version of AlphaFold DB.| v6
 
 2. Running Vina-GPU. The output csv and png summarize Vina-GPU results.
 ```
