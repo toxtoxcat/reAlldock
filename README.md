@@ -24,7 +24,13 @@ conda install -c anaconda requests
 ```
 
 ## Usage
-1. Download AlphaFold structures and prepare docking. Running the code will display a list of species available for download from [AlphaFold Database](https://alphafold.ebi.ac.uk/). Enter the number of the species in the list, then download will begin. After download, Creating pdbqt files and Running fpocket will begin. The output csv file contains the coordinates of the pockets identified by fpocket and average pLDDT for each AlphaFold structure. The coordinates are used in the next `main_dock.py`
+1. Preparing structures.
+
+Download AlphaFold structures and prepare docking. Running the code will display a list of species available for download from [AlphaFold Database](https://alphafold.ebi.ac.uk/). Enter the number of the species in the list, then download will begin.
+
+If you want to select a non-model species which is not included in the list displayed, enter "49". This will download reference proteome data for all species from [UniProt FTP server](https://ftp.uniprot.org/pub/databases/uniprot/)(2.4MB). Next, enter the scientific name of the species you want to search for (for example, “Felis catus”). list of species containing the keyword you entered will be displayed (for example, “Felis catus papillomavirus 3” and “Felis catus”). Enter the number of the species you want to select in the list, and the download of the AlphaFold structures will begin. Please note that you may not be able to download the AlphaFold structures for every sequence.
+
+After download, Creating pdbqt files and Running fpocket will begin. The output csv file contains the coordinates of the pockets identified by fpocket and average pLDDT for each AlphaFold structure. The coordinates are used in the next `main_dock.py`
 ```
 python main_prepare.py \
         --output_path {Absolute path of the output directory}
@@ -33,6 +39,7 @@ python main_prepare.py \
 |--|--|--|
 |--output_path| Specify the absolute path of the output directory.| no default
 |--af_ver| Specify the version of AlphaFold DB.| v6
+|--thre_protein_number| Species with fewer proteins than the value specified here will not be displayed, when searching for non-model species| 0
 
 2. Running Vina-GPU. The output csv and png summarize Vina-GPU results.
 ```
