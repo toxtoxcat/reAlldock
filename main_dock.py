@@ -124,7 +124,9 @@ for config_file in config_files:
 receptor_folder = f'{output_dir}/prepare_result/protein_rawpdb'
 
 # Get the list of receptor files
-receptor_names = [rn for rn in os.listdir(receptor_folder) if rn.endswith(".pdb")]
+fpocket_centroid_path = f'{output_dir}/prepare_result/fpocket-centroids_pLDDT.csv'
+df_fpocket_plddt = pd.read_csv(fpocket_centroid_path)
+receptor_names = df_fpocket_plddt.iloc[:,0].tolist()
 
 # Initialize a DataFrame
 df = pd.DataFrame()
@@ -156,9 +158,7 @@ csv_file = f'{output_dir}/dock_result/{ligand_name}/{ligand_name}_vina_results.c
 
 #  Save the DataFrame as a CSV file
 df.to_csv(csv_file)
-fpocket_centroid_path = f'{output_dir}/prepare_result/fpocket-centroids_pLDDT.csv'
-df_fpocket_plddt_new = pd.read_csv(fpocket_centroid_path)
-ncbi_id = df_fpocket_plddt_new.columns.values[0].split("_")[1]
+ncbi_id = df_fpocket_plddt.columns.values[0].split("_")[1]
 df_new = pd.read_csv(csv_file)
 df_new.columns = [f"ncbi_{ncbi_id}_{ligand_name}"] + list(df.columns)
 df_new.to_csv(csv_file, index=False)
